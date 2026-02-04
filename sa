@@ -1,0 +1,73 @@
+import requests
+import json
+import time
+import hashlib
+import os
+import io
+
+# --- CONFIGURATION ---
+URL = "https://offsets.ntgetwritewatch.workers.dev/offsets.json"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1467999173075931267/iVDaOHn9AALSZ-87M4uqzFyX9h832zM2huG31ITdxGDyWbPTrCzy_TETt_zwotYIgd5z"
+CHECK_INTERVAL = 300
+HASH_FILE = "last_hash.txt"
+
+def json_to_hpp(data):
+    """Converts JSON to raw C++ Header content."""
+    hpp_content = "#pragma once\n#include <cstdint>\n\nnamespace Offsets {\n"
+    try:
+        offsets = json.loads(data)
+        for key, value in offsets.items():
+            # Ensures values are represented as hex
+            hex_val = hex(value) if isinstance(value, int) else value
+            hpp_content += f"    constexpr std::uintptr_t {key} = {hex_val};\n"
+        hpp_content += "}"
+        return hpp_content
+    except Exception as e:
+        return f"// Error: {e}"
+
+def send_to_discord(hpp_text):
+    """Sends only the .hpp content, no extra text."""
+    if len(hpp_text) < 1980:
+        # Sending as a direct code block
+        payload = {"content": f"```cpp\n{hpp_text}\n```"}
+        requests.post(WEBHOOK_URL, json=payload)
+    else:
+        # Sending as a file attachment if too large
+        file_data = io.BytesIO(hpp_text.encode('utf-8'))
+        requests.post(
+            WEBHOOK_URL,
+            files={"file": ("offsets.hpp", file_data)}
+        )
+
+def check_for_updates():
+    try:
+        response = requests.get(URL)
+        response.raise_for_status()
+        current_content = response.text
+        current_hash = hashlib.sha256(current_content.encode('utf-8')).hexdigest()
+
+        # If file doesn't exist, it's the first run: send immediately
+        if not os.path.exists(HASH_FILE):
+            hpp_string = json_to_hpp(current_content)
+            send_to_discord(hpp_string)
+            with open(HASH_FILE, "w") as f:
+                f.write(current_hash)
+            return
+
+        with open(HASH_FILE, "r") as f:
+            last_hash = f.read().strip()
+
+        # Only send if the content changed
+        if current_hash != last_hash:
+            hpp_string = json_to_hpp(current_content)
+            send_to_discord(hpp_string)
+            with open(HASH_FILE, "w") as f:
+                f.write(current_hash)
+
+    except Exception:
+        pass # Keep it silent on errors
+
+if __name__ == "__main__":
+    while True:
+        check_for_updates()
+        time.sleep(CHECK_INTERVAL)
