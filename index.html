@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>mal spam</title>
 
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+    }
+
+    .word {
+        position: absolute;
+        font-family: Arial;
+        font-weight: bold;
+        animation: float 0.6s infinite linear;
+    }
+
+    @keyframes float {
+        0% { transform: translate(0,0) rotate(0deg); }
+        50% { transform: translate(40px,-40px) rotate(180deg); }
+        100% { transform: translate(-40px,40px) rotate(360deg); }
+    }
+</style>
+</head>
+
+<body>
+
+<script>
+let count = 0;
+
+function spawn(){
+    if(count >= 100) return;
+
+    let el = document.createElement("div");
+    el.className = "word";
+    el.innerText = "mal";
+
+    el.style.left = Math.random() * window.innerWidth + "px";
+    el.style.top = Math.random() * window.innerHeight + "px";
+    el.style.fontSize = (20 + Math.random() * 40) + "px";
+    el.style.color = `hsl(${Math.random()*360},100%,50%)`;
+
+    document.body.appendChild(el);
+
+    count++;
+}
+
+// 5 saniyeye yay
+let interval = setInterval(spawn, 50);
+
+setTimeout(() => {
+    clearInterval(interval);
+}, 5000);
+
+</script>
+
+</body>
+</html>
