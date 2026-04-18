@@ -3,138 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>ToolBox 🧠</title>
-
-<style>
-body {
-  font-family: Arial;
-  background: #0f0f0f;
-  color: white;
-  margin: 0;
-  padding: 20px;
-}
-
-h1 { color: #00ff88; }
-
-.box {
-  background: #1c1c1c;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 10px;
-}
-
-button {
-  padding: 8px;
-  background: #00ff88;
-  border: none;
-  cursor: pointer;
-  margin-top: 5px;
-}
-
-input {
-  padding: 8px;
-  width: 100%;
-  margin-top: 5px;
-}
-
-.result {
-  margin-top: 10px;
-  color: #ffd700;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <h1>🧠 ToolBox</h1>
 
-<!-- 🔐 PASSWORD -->
-<div class="box">
-<h2>🔐 Şifre Generator</h2>
-<button onclick="genPass()">Şifre üret</button>
-<div class="result" id="pass"></div>
+<div class="menu">
+
+<a href="tools/colors.html">🎨 Renk Araçları</a>
+<a href="tools/text.html">🔤 Text Araçları</a>
+<a href="tools/random.html">🎲 Random Araçlar</a>
+
 </div>
-
-<!-- 🧑 NAME -->
-<div class="box">
-<h2>🧑 Fake İsim</h2>
-<button onclick="genName()">İsim üret</button>
-<div class="result" id="name"></div>
-</div>
-
-<!-- 🏠 ADDRESS -->
-<div class="box">
-<h2>🏠 Fake Adres</h2>
-<button onclick="genAddr()">Adres üret</button>
-<div class="result" id="addr"></div>
-</div>
-
-<!-- 💳 IBAN -->
-<div class="box">
-<h2>💳 IBAN Kontrol</h2>
-<input id="iban" placeholder="TR00 0000 ...">
-<button onclick="checkIBAN()">Kontrol et</button>
-<div class="result" id="ibanRes"></div>
-</div>
-
-<!-- 😄 EMOJI -->
-<div class="box">
-<h2>😄 Emoji / Text</h2>
-<input id="text" placeholder="merhaba">
-<button onclick="emoji()">Emoji ekle</button>
-<div class="result" id="emojiRes"></div>
-</div>
-
-<script>
-
-// 🔐 PASSWORD
-function genPass() {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
-  let pass = "";
-  for (let i = 0; i < 12; i++) {
-    pass += chars[Math.floor(Math.random() * chars.length)];
-  }
-  document.getElementById("pass").innerText = pass;
-}
-
-// 🧑 NAME
-function genName() {
-  const names = ["Ali", "Veli", "Ayşe", "Mehmet", "Zeynep", "Can", "Ece"];
-  const surnames = ["Yılmaz", "Kaya", "Demir", "Çelik", "Şahin"];
-  let name = names[Math.floor(Math.random()*names.length)] + " " +
-             surnames[Math.floor(Math.random()*surnames.length)];
-  document.getElementById("name").innerText = name;
-}
-
-// 🏠 ADDRESS
-function genAddr() {
-  const streets = ["Atatürk Cd.", "İstiklal", "Bağdat", "Cumhuriyet"];
-  const cities = ["İstanbul", "Ankara", "İzmir", "Bursa"];
-
-  let addr = streets[Math.floor(Math.random()*streets.length)] +
-             " No:" + Math.floor(Math.random()*200) +
-             " " + cities[Math.floor(Math.random()*cities.length)];
-
-  document.getElementById("addr").innerText = addr;
-}
-
-// 💳 IBAN CHECK (basit format kontrol)
-function checkIBAN() {
-  let iban = document.getElementById("iban").value.replace(/\s/g,'');
-
-  if (iban.startsWith("TR") && iban.length === 26) {
-    document.getElementById("ibanRes").innerText = "✔ Format doğru (simülasyon)";
-  } else {
-    document.getElementById("ibanRes").innerText = "❌ Geçersiz format";
-  }
-}
-
-// 😄 EMOJI
-function emoji() {
-  const text = document.getElementById("text").value;
-  document.getElementById("emojiRes").innerText = "😄 " + text + " 🚀🔥";
-}
-
-</script>
 
 </body>
 </html>
