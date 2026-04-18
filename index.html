@@ -3,20 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <title>ToolBox 🧠</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 { color: #00ff88; text-align:center; }
+
+section {
+  background: #1c1c1c;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 10px;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  background: #00ff88;
+  border: none;
+  cursor: pointer;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+}
+
+.result {
+  margin-top: 10px;
+  color: #ffd700;
+}
+</style>
 </head>
 
 <body>
 
 <h1>🧠 ToolBox</h1>
 
-<div class="menu">
+<!-- 🎨 COLORS -->
+<section>
+<h2>🎨 Renk Araçları</h2>
+<button onclick="hex()">HEX</button>
+<button onclick="rgb()">RGB</button>
+<div id="cRes" class="result"></div>
+</section>
 
-<a href="tools/colors.html">🎨 Renk Araçları</a>
-<a href="tools/text.html">🔤 Text Araçları</a>
-<a href="tools/random.html">🎲 Random Araçlar</a>
+<!-- 🔤 TEXT -->
+<section>
+<h2>🔤 Text Araçları</h2>
+<textarea id="txt"></textarea>
 
-</div>
+<button onclick="upper()">UPPER</button>
+<button onclick="lower()">lower</button>
+<button onclick="reverse()">Reverse</button>
+
+<div id="tRes" class="result"></div>
+</section>
+
+<!-- 🎲 RANDOM -->
+<section>
+<h2>🎲 Random Araçlar</h2>
+<button onclick="num()">Sayı</button>
+<button onclick="coin()">Yazı-Tura</button>
+<button onclick="dice()">Zar</button>
+
+<div id="rRes" class="result"></div>
+</section>
+
+<!-- 🔐 PASSWORD -->
+<section>
+<h2>🔐 Şifre Generator</h2>
+<button onclick="pass()">Üret</button>
+<div id="pRes" class="result"></div>
+</section>
+
+<!-- ✔ VALIDATION -->
+<section>
+<h2>✔ Validator</h2>
+<input id="email" placeholder="email">
+<button onclick="checkEmail()">Email kontrol</button>
+
+<input id="iban" placeholder="IBAN">
+<button onclick="checkIban()">IBAN kontrol</button>
+
+<div id="vRes" class="result"></div>
+</section>
+
+<script>
+
+/* 🎨 COLORS */
+function hex(){
+  cRes.innerText="#"+Math.floor(Math.random()*16777215).toString(16);
+}
+function rgb(){
+  let r=Math.random()*255|0,g=Math.random()*255|0,b=Math.random()*255|0;
+  cRes.innerText=`rgb(${r},${g},${b})`;
+}
+
+/* 🔤 TEXT */
+function upper(){ tRes.innerText=txt.value.toUpperCase(); }
+function lower(){ tRes.innerText=txt.value.toLowerCase(); }
+function reverse(){ tRes.innerText=[...txt.value].reverse().join(""); }
+
+/* 🎲 */
+function num(){ rRes.innerText=Math.floor(Math.random()*1000); }
+function coin(){ rRes.innerText=Math.random()>0.5?"Yazı":"Tura"; }
+function dice(){ rRes.innerText=1+Math.floor(Math.random()*6); }
+
+/* 🔐 */
+function pass(){
+  let c="abc123XYZ!@#";
+  let p="";
+  for(let i=0;i<12;i++) p+=c[Math.random()*c.length|0];
+  pRes.innerText=p;
+}
+
+/* ✔ */
+function checkEmail(){
+  vRes.innerText=/\S+@\S+\.\S+/.test(email.value)?"OK":"Hatalı";
+}
+function checkIban(){
+  let i=iban.value.replace(/\s/g,'');
+  vRes.innerText=(i.startsWith("TR") && i.length==26)?"OK":"Hatalı";
+}
+
+</script>
 
 </body>
 </html>
