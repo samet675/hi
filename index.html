@@ -1,356 +1,140 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apex AI</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<meta charset="UTF-8">
+<title>ToolBox 🧠</title>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-        
-        :root {
-            --bg-main: #020204;
-            --bg-panel: rgba(10, 10, 15, 0.96);
-            --primary: #a855f7;
-            --border: rgba(255, 255, 255, 0.08);
-        }
+<style>
+body {
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+  margin: 0;
+  padding: 20px;
+}
 
-        body { 
-            background-color: var(--bg-main); color: #e2e2e8; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            height: 100vh; overflow: hidden; display: flex;
-            background-image: radial-gradient(circle at 50% 0%, rgba(168,85,247,0.1), transparent 50%);
-        }
+h1 { color: #00ff88; }
 
-        /* --- UI Components --- */
-        .glass-panel { background: var(--bg-panel); backdrop-filter: blur(40px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); }
-        .cyber-grid { background-image: linear-gradient(rgba(168, 85, 247, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.05) 1px, transparent 1px); background-size: 30px 30px; }
-        
-        .sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
-        .sidebar-hidden { transform: translateX(-100%); }
+.box {
+  background: #1c1c1c;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+}
 
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; height: 100%; width: 290px; }
-            .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 90; display: none; }
-            .sidebar.active + .sidebar-overlay { display: block; }
-        }
+button {
+  padding: 8px;
+  background: #00ff88;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+}
 
-        .msg-anim { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .loader-ring { animation: pulse-ring 1.5s infinite; }
-        @keyframes pulse-ring { 0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); } 100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); } }
-        
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #27273a; border-radius: 10px; }
+input {
+  padding: 8px;
+  width: 100%;
+  margin-top: 5px;
+}
 
-        .auth-overlay { background: rgba(1, 1, 3, 0.99); backdrop-filter: blur(80px); z-index: 99999; transition: all 0.6s ease; }
-        .hidden-auth { opacity: 0; pointer-events: none; transform: scale(1.05); filter: blur(30px); }
-
-        .tab-active { color: white !important; border-bottom: 2px solid var(--primary); }
-    </style>
+.result {
+  margin-top: 10px;
+  color: #ffd700;
+}
+</style>
 </head>
-<body class="flex">
 
-    <div id="loginOverlay" class="fixed inset-0 auth-overlay flex items-center justify-center p-4">
-        <div class="absolute inset-0 cyber-grid opacity-20"></div>
-        <div class="glass-panel p-8 md:p-12 rounded-[40px] w-full max-w-[440px] text-center border-purple-500/20 relative overflow-hidden">
-            
-            <div class="w-20 h-20 bg-black rounded-3xl mx-auto flex items-center justify-center border-2 border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.4)] mb-6 animate-pulse">
-                <span class="text-6xl font-black text-white italic">A</span>
-            </div>
-            
-            <h2 class="text-3xl font-black text-white tracking-[0.1em] uppercase mb-10">Apex AI</h2>
+<body>
 
-            <div class="flex justify-center gap-10 mb-10 text-xs font-bold uppercase tracking-[0.2em] text-gray-500">
-                <button onclick="switchTab('login')" id="lTab" class="tab-active pb-2">Giriş</button>
-                <button onclick="switchTab('signup')" id="sTab" class="pb-2">Hesap Aç</button>
-            </div>
+<h1>🧠 ToolBox</h1>
 
-            <div id="authContent" class="space-y-4">
-                <input type="text" id="authName" placeholder="Kullanıcı Adı" class="w-full bg-black/60 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none transition-all font-mono text-sm focus:border-purple-500">
-                <button onclick="handleAuth()" id="authBtn" class="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-purple-500 hover:text-white transition-all transform active:scale-95 uppercase tracking-widest text-[11px] shadow-xl">Sisteme Giriş</button>
-            </div>
-            
-            <p class="mt-10 text-[9px] text-gray-600 font-mono tracking-widest uppercase">Secured by noechox Cloud</p>
-        </div>
-    </div>
+<!-- 🔐 PASSWORD -->
+<div class="box">
+<h2>🔐 Şifre Generator</h2>
+<button onclick="genPass()">Şifre üret</button>
+<div class="result" id="pass"></div>
+</div>
 
-    <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#050508] border-b border-white/5 flex items-center justify-between px-5 z-[80]">
-        <button onclick="toggleSidebar()" class="text-purple-500"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-        <span class="font-black text-white tracking-widest uppercase">Apex AI</span>
-        <div class="w-10"></div>
-    </div>
+<!-- 🧑 NAME -->
+<div class="box">
+<h2>🧑 Fake İsim</h2>
+<button onclick="genName()">İsim üret</button>
+<div class="result" id="name"></div>
+</div>
 
-    <aside id="sidebar" class="sidebar sidebar-hidden md:transform-none md:relative w-[320px] h-full bg-[#050508] flex flex-col border-r border-white/5 shadow-2xl">
-        <div class="p-8 border-b border-white/5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center font-black text-white text-2xl">A</div>
-            <div>
-                <span class="font-black text-xl text-white tracking-widest uppercase block leading-none">Apex AI</span>
-                <span class="text-[9px] text-purple-400 font-mono mt-1 tracking-widest uppercase">noechox Edition</span>
-            </div>
-        </div>
-        <div class="p-6"><button onclick="startNewChat()" class="w-full p-4 rounded-xl bg-purple-600/10 border border-purple-500/20 text-purple-400 font-bold hover:bg-purple-600 hover:text-white transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest">Yeni Terminal</button></div>
-        <div class="flex-1 overflow-y-auto px-6" id="chatHistory"></div>
-        <div class="p-6 border-t border-white/5 bg-black/20 mt-auto">
-            <div class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div id="userInitial" class="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center font-bold text-white text-xs">?</div>
-                <div class="flex-1 overflow-hidden">
-                    <p id="userNameDisplay" class="text-[13px] font-bold text-gray-200 truncate font-mono">User</p>
-                    <button onclick="logout()" class="text-[9px] text-red-500/70 font-bold uppercase tracking-widest hover:text-red-400">Çıkış Yap</button>
-                </div>
-            </div>
-        </div>
-    </aside>
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<!-- 🏠 ADDRESS -->
+<div class="box">
+<h2>🏠 Fake Adres</h2>
+<button onclick="genAddr()">Adres üret</button>
+<div class="result" id="addr"></div>
+</div>
 
-    <main class="flex-1 flex flex-col relative h-full bg-[#020204]">
-        <div id="chatContainer" class="flex-1 overflow-y-auto scroll-smooth pt-20 md:pt-0 pb-[160px]">
-            <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center p-8">
-                <div class="w-36 h-36 bg-[#050508] rounded-[40px] flex items-center justify-center text-8xl font-black text-purple-500 shadow-[0_0_80px_rgba(168,85,247,0.15)] border border-white/5 mb-10">A</div>
-                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter uppercase">Apex AI</h1>
-                <p class="text-gray-500 max-w-[480px] text-sm md:text-base font-mono opacity-80 leading-relaxed italic">"Görsel motoru ve kimlik doğrulama sistemi optimize edildi. Emrinizdeyim."</p>
-            </div>
-            <div id="chatList"></div>
-        </div>
+<!-- 💳 IBAN -->
+<div class="box">
+<h2>💳 IBAN Kontrol</h2>
+<input id="iban" placeholder="TR00 0000 ...">
+<button onclick="checkIBAN()">Kontrol et</button>
+<div class="result" id="ibanRes"></div>
+</div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 md:p-10 bg-gradient-to-t from-[#020204] via-[#020204] to-transparent pointer-events-none z-50">
-            <div class="max-w-[850px] mx-auto pointer-events-auto relative">
-                <div id="attachmentPreview" class="hidden flex gap-2 p-3 bg-black border border-white/10 rounded-2xl mb-4 shadow-2xl items-center"><div id="attachmentContent"></div><button onclick="removeAttachment()" class="text-red-500 p-2"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>
-                <div class="glass-panel rounded-[32px] p-2 flex flex-col bg-[#050508]/95 focus-within:border-purple-500/50 transition-all">
-                    <div class="flex items-end gap-1 md:gap-2 w-full px-2">
-                        <button onclick="document.getElementById('fileUpload').click()" class="flex items-center justify-center w-12 h-12 text-gray-500 hover:text-purple-400"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></button>
-                        <input type="file" id="fileUpload" class="hidden" onchange="handleFileSelect(event)">
-                        <textarea id="mainInput" placeholder="Mesaj gönder veya /çiz..." rows="1" class="flex-1 bg-transparent border-none outline-none text-white resize-none py-4 px-2 text-[15px] font-mono max-h-[150px] leading-relaxed placeholder:text-gray-700"></textarea>
-                        <button onclick="handleSend()" class="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all active:scale-90 shadow-xl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+<!-- 😄 EMOJI -->
+<div class="box">
+<h2>😄 Emoji / Text</h2>
+<input id="text" placeholder="merhaba">
+<button onclick="emoji()">Emoji ekle</button>
+<div class="result" id="emojiRes"></div>
+</div>
 
-    <script>
-        let currentTab = 'login';
-        let App = {
-            user: localStorage.getItem('apex_user_session') || null,
-            users: JSON.parse(localStorage.getItem('apex_registered_users')) || [],
-            chats: JSON.parse(localStorage.getItem('apex_chat_db')) || [],
-            currentId: null,
-            waiting: false,
-            attach: null
-        };
+<script>
 
-        const DOM = {
-            overlay: document.getElementById('loginOverlay'),
-            input: document.getElementById('mainInput'),
-            container: document.getElementById('chatContainer'),
-            list: document.getElementById('chatList'),
-            welcome: document.getElementById('welcomeScreen'),
-            history: document.getElementById('chatHistory'),
-            sidebar: document.getElementById('sidebar'),
-            authName: document.getElementById('authName'),
-            authBtn: document.getElementById('authBtn')
-        };
+// 🔐 PASSWORD
+function genPass() {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+  let pass = "";
+  for (let i = 0; i < 12; i++) {
+    pass += chars[Math.floor(Math.random() * chars.length)];
+  }
+  document.getElementById("pass").innerText = pass;
+}
 
-        // --- HESAP SİSTEMİ ---
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('lTab').className = tab === 'login' ? 'tab-active' : '';
-            document.getElementById('sTab').className = tab === 'signup' ? 'tab-active' : '';
-            DOM.authBtn.innerText = tab === 'login' ? 'Sisteme Giriş' : 'Hesabı Kaydet';
-        }
+// 🧑 NAME
+function genName() {
+  const names = ["Ali", "Veli", "Ayşe", "Mehmet", "Zeynep", "Can", "Ece"];
+  const surnames = ["Yılmaz", "Kaya", "Demir", "Çelik", "Şahin"];
+  let name = names[Math.floor(Math.random()*names.length)] + " " +
+             surnames[Math.floor(Math.random()*surnames.length)];
+  document.getElementById("name").innerText = name;
+}
 
-        function handleAuth() {
-            const name = DOM.authName.value.trim();
-            if(!name) return alert("Kullanıcı adı gerekli!");
+// 🏠 ADDRESS
+function genAddr() {
+  const streets = ["Atatürk Cd.", "İstiklal", "Bağdat", "Cumhuriyet"];
+  const cities = ["İstanbul", "Ankara", "İzmir", "Bursa"];
 
-            if(currentTab === 'signup') {
-                if(App.users.includes(name)) return alert("Bu isim zaten alınmış!");
-                App.users.push(name);
-                localStorage.setItem('apex_registered_users', JSON.stringify(App.users));
-                alert("Hesap başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.");
-                switchTab('login');
-            } else {
-                if(App.users.includes(name)) {
-                    localStorage.setItem('apex_user_session', name);
-                    location.reload();
-                } else {
-                    alert("Kullanıcı bulunamadı! Önce hesap açmanız gerekiyor.");
-                }
-            }
-        }
+  let addr = streets[Math.floor(Math.random()*streets.length)] +
+             " No:" + Math.floor(Math.random()*200) +
+             " " + cities[Math.floor(Math.random()*cities.length)];
 
-        function logout() { localStorage.removeItem('apex_user_session'); location.reload(); }
-        function toggleSidebar() { DOM.sidebar.classList.toggle('sidebar-hidden'); DOM.sidebar.classList.toggle('active'); }
+  document.getElementById("addr").innerText = addr;
+}
 
-        // --- ÇİZİM MOTORU (CACHE VE TAKILMA ÇÖZÜLDÜ) ---
-        const renderer = new marked.Renderer();
-        renderer.image = function(href, title, text) {
-            const imgId = 'img-' + Date.now();
-            return `
-            <div class="my-6 rounded-[28px] overflow-hidden border border-white/10 shadow-2xl inline-block bg-black p-1.5 relative min-w-[300px] min-h-[300px]">
-                <div id="loader-${imgId}" class="absolute inset-0 flex flex-col items-center justify-center bg-white/5 animate-pulse rounded-[22px] z-20">
-                     <div class="loader-ring w-12 h-12 rounded-full border-2 border-purple-500/30 mb-4"></div>
-                     <span class="text-purple-500/50 text-[10px] font-mono tracking-widest uppercase mb-1">noechox Engine Rendering</span>
-                     <span id="timer-${imgId}" class="text-white font-mono text-[14px]">0.0s</span>
-                </div>
-                <img src="${href}" alt="${text}" class="w-full max-w-[500px] h-auto object-cover rounded-[22px] relative z-10 opacity-0 transition-opacity duration-700" 
-                    onload="stopImgTimer('${imgId}')" 
-                    onerror="this.src='https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=800&height=800&nologo=true&seed=${Math.random()}';">
-            </div>`;
-        };
-        marked.setOptions({ renderer: renderer, breaks: true });
+// 💳 IBAN CHECK (basit format kontrol)
+function checkIBAN() {
+  let iban = document.getElementById("iban").value.replace(/\s/g,'');
 
-        let timers = {};
-        function startImgTimer(id) {
-            let s = Date.now();
-            timers[id] = setInterval(() => {
-                let el = document.getElementById('timer-' + id);
-                if(el) el.innerText = ((Date.now() - s) / 1000).toFixed(1) + 's';
-            }, 100);
-        }
-        function stopImgTimer(id) {
-            clearInterval(timers[id]);
-            let loader = document.getElementById('loader-' + id);
-            if(loader) loader.style.display = 'none';
-            let img = loader.nextElementSibling;
-            if(img) img.style.opacity = '1';
-            DOM.container.scrollTop = DOM.container.scrollHeight;
-        }
+  if (iban.startsWith("TR") && iban.length === 26) {
+    document.getElementById("ibanRes").innerText = "✔ Format doğru (simülasyon)";
+  } else {
+    document.getElementById("ibanRes").innerText = "❌ Geçersiz format";
+  }
+}
 
-        window.onload = () => {
-            if (App.user) {
-                DOM.overlay.classList.add('hidden-auth');
-                document.getElementById('userNameDisplay').textContent = App.user;
-                document.getElementById('userInitial').textContent = App.user[0].toUpperCase();
-                setTimeout(() => DOM.input.focus(), 300);
-            }
-            renderHistory();
-        };
+// 😄 EMOJI
+function emoji() {
+  const text = document.getElementById("text").value;
+  document.getElementById("emojiRes").innerText = "😄 " + text + " 🚀🔥";
+}
 
-        function renderHistory() {
-            DOM.history.innerHTML = '';
-            [...App.chats].reverse().forEach(chat => {
-                const btn = document.createElement('div');
-                btn.className = `p-4 text-[12px] rounded-2xl cursor-pointer transition-all truncate font-mono mb-2 ${chat.id === App.currentId ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 font-bold' : 'text-gray-500 hover:bg-white/5'}`;
-                btn.innerHTML = `<span class="opacity-30 mr-2">></span> ${chat.title}`;
-                btn.onclick = () => { loadChat(chat.id); if(window.innerWidth < 768) toggleSidebar(); };
-                DOM.history.appendChild(btn);
-            });
-        }
+</script>
 
-        function startNewChat() {
-            App.currentId = null; DOM.welcome.style.display = 'flex'; DOM.list.innerHTML = '';
-            DOM.input.value = ''; removeAttachment(); renderHistory(); DOM.input.focus();
-            if(window.innerWidth < 768) toggleSidebar();
-        }
-
-        function loadChat(id) {
-            App.currentId = id; DOM.welcome.style.display = 'none'; DOM.list.innerHTML = '';
-            const chat = App.chats.find(c => c.id === id);
-            if (chat) chat.messages.forEach(msg => appendMessageUI(msg.role, msg.text, msg.attach));
-            renderHistory();
-        }
-
-        async function handleSend() {
-            const text = DOM.input.value.trim();
-            if ((!text && !App.attach) || App.waiting) return;
-
-            App.waiting = true;
-            DOM.input.value = ''; DOM.input.style.height = 'auto'; DOM.welcome.style.display = 'none';
-
-            if (!App.currentId) {
-                App.currentId = Date.now();
-                App.chats.push({ id: App.currentId, title: text.substring(0, 20) || "Terminal", messages: [] });
-            }
-
-            const chat = App.chats.find(c => c.id === App.currentId);
-            const userMsg = { role: 'user', text: text, attach: App.attach ? {...App.attach} : null };
-            chat.messages.push(userMsg);
-            appendMessageUI('user', text, userMsg.attach);
-            removeAttachment();
-
-            // --- /ÇİZ MODÜLÜ (v77 ULTRA FAST) ---
-            if (text.toLowerCase().startsWith('/çiz') || text.toLowerCase().startsWith('/ciz')) {
-                const prompt = text.substring(4).trim();
-                const seed = Math.floor(Math.random() * 1000000);
-                const encoded = encodeURIComponent(prompt + ", ultra quality, 8k, cinematic lighting");
-                // Cache Buster ve Hızlı Rota
-                const url = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&nologo=true&seed=${seed}&v=${Date.now()}`;
-                
-                const aiResponse = `Konuyu araştırıyorum ve en iyi görseli oluşturmak için bilgileri birleştiriyorum... İşte sonucunuz:\n\n![${prompt}](${url})`;
-                
-                chat.messages.push({ role: 'ai', text: aiResponse });
-                appendMessageUI('ai', aiResponse);
-                
-                const loaders = document.querySelectorAll('[id^="loader-"]');
-                const lastId = loaders[loaders.length-1].id.replace('loader-','');
-                startImgTimer(lastId);
-
-                localStorage.setItem('apex_chat_db', JSON.stringify(App.chats));
-                App.waiting = false;
-                return;
-            }
-
-            const loaderId = showLoader();
-            try {
-                const sys = `Sen Apex AI'sın. noechox tarafından geliştirildin. OpenAI ile bağın yok. Kurucun noechox'dur. Profesyonel, nazik ve zeki bir asistansın. Türkçe konuş. Markdown kullan.`;
-                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(sys + "\nUser: " + text)}`);
-                const aiText = res.ok ? (await res.text()).trim() : "Şu an sunucu meşgul.";
-                document.getElementById(loaderId)?.remove();
-                chat.messages.push({ role: 'ai', text: aiText });
-                appendMessageUI('ai', aiText);
-                localStorage.setItem('apex_chat_db', JSON.stringify(App.chats));
-            } catch(e) { document.getElementById(loaderId)?.remove(); }
-            
-            App.waiting = false;
-            renderHistory();
-        }
-
-        function appendMessageUI(role, text, attach) {
-            const isAI = role === 'ai';
-            const div = document.createElement('div');
-            div.className = `py-10 px-[5%] md:px-[15%] flex gap-6 msg-anim ${isAI ? 'bg-white/[0.01] border-y border-white/[0.02]' : ''}`;
-            const avatar = isAI 
-                ? `<div class="w-12 h-12 rounded-2xl bg-black border-2 border-purple-500/40 flex-shrink-0 flex items-center justify-center font-black text-purple-500 text-xl shadow-lg">A</div>`
-                : `<div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex-shrink-0 flex items-center justify-center font-bold text-gray-400 uppercase text-sm font-mono">${App.user[0]}</div>`;
-
-            let attachHTML = attach ? (attach.type.startsWith('image/') 
-                ? `<img src="${attach.data}" class="max-w-[250px] rounded-xl mb-6 border border-white/10 shadow-2xl">`
-                : `<div class="bg-black/60 border border-white/10 p-4 rounded-2xl mb-6 font-mono text-[11px] text-purple-400">📎 ${attach.name}</div>`) : '';
-
-            const content = isAI ? marked.parse(text) : text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
-            div.innerHTML = `${avatar}<div class="flex-1 min-w-0 pt-1"><div class="text-[11px] font-black mb-2 tracking-[0.3em] uppercase ${isAI ? 'text-purple-500' : 'text-gray-600'} font-mono">Apex AI</div>${attachHTML}<div class="markdown-body text-[15px] md:text-[16px] text-gray-300 font-medium">${content}</div></div>`;
-            DOM.list.appendChild(div);
-            div.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
-            DOM.container.scrollTop = DOM.container.scrollHeight;
-        }
-
-        function showLoader() {
-            const id = 'l' + Date.now();
-            const div = document.createElement('div'); div.id = id; div.className = 'py-10 px-[5%] md:px-[15%] flex gap-6 msg-anim bg-white/[0.01]';
-            div.innerHTML = `<div class="w-12 h-12 rounded-2xl border-2 border-purple-500/20 flex items-center justify-center"><div class="loader-ring absolute w-10 h-10 rounded-2xl border-2 border-purple-500/40"></div><span class="text-purple-500/30 font-black">A</span></div><div class="flex items-center gap-2 pt-2"><div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.2s]"></div><div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.4s]"></div></div>`;
-            DOM.list.appendChild(div); DOM.container.scrollTop = DOM.container.scrollHeight; return id;
-        }
-
-        function handleFileSelect(e) {
-            const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = (ev) => {
-                App.attach = { name: f.name, type: f.type, data: ev.target.result };
-                document.getElementById('attachmentPreview').classList.remove('hidden');
-                document.getElementById('attachmentContent').innerHTML = f.type.startsWith('image/') ? `<img src="${ev.target.result}" class="w-10 h-10 object-cover rounded-xl">` : `<div class="w-10 h-10 bg-black flex items-center justify-center text-[8px] text-gray-500 border border-white/10 rounded-xl">FILE</div>`;
-                DOM.input.focus();
-            };
-            r.readAsDataURL(f);
-        }
-        function removeAttachment() { App.attach = null; document.getElementById('attachmentPreview').classList.add('hidden'); }
-        DOM.input.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 150) + 'px'; });
-        DOM.input.addEventListener('keydown', (e) => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-    </script>
 </body>
 </html>
